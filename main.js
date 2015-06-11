@@ -265,22 +265,36 @@ gl_FragColor = vec4(vColor, 1.);\n\
   
   var f_near = 5;
   var f_far = 20;
-  var f_width = 3;
+  var f_width = 6;
   
   var eye_off = .5;
   var f_scr = 10;
   
   var f_assym = eye_off*f_near/f_scr;
-
-  var viewmatl = mul(tmat(eye_off/2,0,0),viewmat);
-  var viewmatr = mul(tmat(-eye_off/2,0,0),viewmat);
-  var projmatl = pmat(-f_width-f_assym,f_width-f_assym,-2*f_width/aspect,2*f_width/aspect,f_near,f_far);
-  var projmatr = pmat(-f_width+f_assym,f_width+f_assym,-2*f_width/aspect,2*f_width/aspect,f_near,f_far);
-  var pvmatl = mul(projmatl,viewmatl);
-  var pvmatr = mul(projmatr,viewmatr);
+  
+  var pvmatl;
+  var pvmatr;
   var cubepvm;
   var pyrpvm;
   var planepvm;
+  
+  var update_pv = function(alpha, beta, gamma){
+    var rot = mul(rmaty(Math.cos(alpha),Math.sin(alpha)),
+              mul(rmatx(Math.cos(beta),Math.sin(beta)),
+              rmatz(Math.cos(gamma),Math.sin(gamma))));
+    var viewmatl = mul(tmat(eye_off/2,0,0),mul(rot,viewmat));
+    var viewmatr = mul(tmat(-eye_off/2,0,0),mul(rot,viewmat));
+    var projmatl = pmat(-f_width/2-f_assym,f_width/2-f_assym,-f_width/aspect,f_width/aspect,f_near,f_far);
+    var projmatr = pmat(-f_width/2+f_assym,f_width/2+f_assym,-f_width/aspect,f_width/aspect,f_near,f_far);
+    pvmatl = mul(projmatl,viewmatl);
+    pvmatr = mul(projmatr,viewmatr);
+  };
+  
+  update_pv(0,0,0);
+  
+  window.addEventListener("deviceorientation", function(event) {
+    update_pv((90-event.alpha)/180*Math.PI,-event.beta/180*Math.PI,event.gamma/180*Math.PI);
+    }, true);
   
   GL.enable(GL.DEPTH_TEST);
   //GL.depthFunc(GL.LEQUAL);
