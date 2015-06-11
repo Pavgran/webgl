@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Accelerometer Javascript Test</title>
+<meta name="viewport" content="width=device-width,user-scalable=yes" />
+<style>
+body {
+	font-family: helvetica, arial, sans serif;
+}
+</style>
+</head>
+
+<body>
+<div id="content">
+    <h1>Accelerometer Javascript Test</h1>
+<ul>
+	<li>rotation alpha: <span id="Alpha"></span>degree</li>
+	<li>rotation beta: <span id="Beta"></span>degree</li>
+	<li>rotation gamma: <span id="Gamma"></span>degree</li>
+</ul>
+
+</div>
+<script type="text/javascript">
+
+	
+window.addEventListener("deviceorientation", function(e) {
+		document.getElementById("Alpha").innerHTML = e.alpha;
+		document.getElementById("Beta").innerHTML = e.beta;
+		document.getElementById("Gamma").innerHTML = e.gamma;
+});
+
+function boundingBoxCheck(){
+	if (x<0) { x = 0; vx = -vx; }
+	if (y<0) { y = 0; vy = -vy; }
+	if (x>document.documentElement.clientWidth-20) { x = document.documentElement.clientWidth-20; vx = -vx; }
+	if (y>document.documentElement.clientHeight-20) { y = document.documentElement.clientHeight-20; vy = -vy; }
+	
+}
+
+</script>
+
+</body>
+</html>
