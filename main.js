@@ -267,7 +267,7 @@ gl_FragColor = vec4(vColor, 1.);\n\
   var f_far = 20;
   var f_width = 6;
   
-  var eye_off = .5;
+  var eye_off = 1;
   var f_scr = 10;
   
   var f_assym = eye_off*f_near/f_scr;
@@ -278,10 +278,14 @@ gl_FragColor = vec4(vColor, 1.);\n\
   var pyrpvm;
   var planepvm;
   
+  var cur_alpha = 0;
+  var cur_beta = 0;
+  var cur_gamma = 0;
+  
   var update_pv = function(alpha, beta, gamma){
-    var rot = mul(rmaty(Math.cos(alpha),Math.sin(alpha)),
+    var rot = mul(rmatz(Math.cos(alpha),Math.sin(alpha)),
               mul(rmatx(Math.cos(beta),Math.sin(beta)),
-              rmatz(Math.cos(gamma),Math.sin(gamma))));
+              rmaty(Math.cos(gamma),Math.sin(gamma))));
     var viewmatl = mul(tmat(eye_off/2,0,0),mul(rot,viewmat));
     var viewmatr = mul(tmat(-eye_off/2,0,0),mul(rot,viewmat));
     var projmatl = pmat(-f_width/2-f_assym,f_width/2-f_assym,-f_width/aspect,f_width/aspect,f_near,f_far);
@@ -292,8 +296,14 @@ gl_FragColor = vec4(vColor, 1.);\n\
   
   update_pv(0,0,0);
   
-  window.addEventListener("deviceorientation", function(event) {
-    update_pv((90-event.alpha)/180*Math.PI,-event.beta/180*Math.PI,event.gamma/180*Math.PI);
+  window.addEventListener("devicemotion", function(e) {
+    cur_alpha = (cur_alpha + e.rotationRate.alpha * e.interval/1000);
+    cur_beta = (cur_beta + e.rotationRate.beta * e.interval/1000);
+    cur_gamma = (cur_gamma + e.rotationRate.gamma * e.interval/1000);
+    update_pv(-cur_alpha,cur_beta,cur_gamma);
+    document.getElementById("Alpha").innerHTML = Math.round(cur_alpha/Math.PI*180);
+    document.getElementById("Beta").innerHTML = Math.round(cur_beta/Math.PI*180);
+    document.getElementById("Gamma").innerHTML = Math.round(cur_gamma/Math.PI*180);
     }, true);
   
   GL.enable(GL.DEPTH_TEST);
@@ -341,7 +351,7 @@ gl_FragColor = vec4(vColor, 1.);\n\
     GL.viewport(CANVAS.width/2, 0.0, CANVAS.width/2, CANVAS.height);
     render(pvmatr, movemat);
     GL.flush();
-
+    
     window.requestAnimationFrame(animate);
   };
   animate(0);

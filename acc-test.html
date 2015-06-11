@@ -22,11 +22,16 @@ body {
 </div>
 <script type="text/javascript">
 
-	
-window.addEventListener("deviceorientation", function(e) {
-		document.getElementById("Alpha").innerHTML = e.alpha;
-		document.getElementById("Beta").innerHTML = e.beta;
-		document.getElementById("Gamma").innerHTML = e.gamma;
+var alpha=0;
+var beta=0;
+var gamma=0;
+window.addEventListener("devicemotion", function(e) {
+    alpha = (alpha+e.rotationRate.alpha*e.interval/1000)/Math.PI*180%360;
+    beta = (beta+e.rotationRate.beta*e.interval/1000)/Math.PI*180%360;
+    gamma = (gamma+e.rotationRate.gamma*e.interval/1000)/Math.PI*180%180;
+		document.getElementById("Alpha").innerHTML = Math.floor(alpha);
+		document.getElementById("Beta").innerHTML = Math.floor(beta);
+		document.getElementById("Gamma").innerHTML = Math.floor(gamma);
 });
 
 function boundingBoxCheck(){
