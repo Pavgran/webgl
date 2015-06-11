@@ -186,10 +186,10 @@ gl_FragColor = vec4(vColor, 1.);\n\
               0,1,0,0,
               0,0,1,0,
               0,0,0,0];
-  var pmat = function(w, h, n, f){
-    return [2*n/w,0,0,0,
-            0,0,(f+n)/(f-n),1,
-            0,2*n/h,0,0,
+  var pmat = function(l, r, b, t, n, f){
+    return [2*n/(r-l),0,0,0,
+            -(r+l)/(r-l),-(t+b)/(t-b),(f+n)/(f-n),1,
+            0,2*n/(t-b),0,0,
             0,0,-2*f*n/(f+n),0];
   };
   var tmat = function(x, y, z){
@@ -261,9 +261,23 @@ gl_FragColor = vec4(vColor, 1.);\n\
   var cubemovemat = tmat(-2,-.5,0);
   var pyrmovemat = tmat(1,-.5,0);
   var planemovemat = mul(smat(Math.sqrt(17),Math.sqrt(17),1),tmat(-.5,-.5,0));
-  var viewmat = mul(tmat(0,5,0),rmatx(Math.cos(Math.PI/6),Math.sin(Math.PI/6)));
-  var projmat = pmat(6,6/aspect,3,13);
-  var pvmat = mul(projmat,viewmat);
+  var viewmat = mul(tmat(0,7,0),rmatx(Math.cos(Math.PI/6),Math.sin(Math.PI/6)));
+  
+  var f_near = 5;
+  var f_far = 20;
+  var f_width = 3;
+  
+  var eye_off = .5;
+  var f_scr = 10;
+  
+  var f_assym = eye_off*f_near/f_scr;
+
+  var viewmatl = mul(tmat(eye_off/2,0,0),viewmat);
+  var viewmatr = mul(tmat(-eye_off/2,0,0),viewmat);
+  var projmatl = pmat(-f_width-f_assym,f_width-f_assym,-2*f_width/aspect,2*f_width/aspect,f_near,f_far);
+  var projmatr = pmat(-f_width+f_assym,f_width+f_assym,-2*f_width/aspect,2*f_width/aspect,f_near,f_far);
+  var pvmatl = mul(projmatl,viewmatl);
+  var pvmatr = mul(projmatr,viewmatr);
   var cubepvm;
   var pyrpvm;
   var planepvm;
@@ -308,8 +322,10 @@ gl_FragColor = vec4(vColor, 1.);\n\
     var movemat = rmat([0,0,0],[0,0,1],Math.cos(phi),Math.sin(phi));
     
     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-    GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
-    render(pvmat, movemat);
+    GL.viewport(0.0, 0.0, CANVAS.width/2, CANVAS.height);
+    render(pvmatl, movemat);
+    GL.viewport(CANVAS.width/2, 0.0, CANVAS.width/2, CANVAS.height);
+    render(pvmatr, movemat);
     GL.flush();
 
     window.requestAnimationFrame(animate);
