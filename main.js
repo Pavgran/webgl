@@ -2,7 +2,7 @@ var main = function() {
   var CANVAS = document.getElementById("canvas");
   CANVAS.width = window.innerWidth;
   CANVAS.height = window.innerHeight;
-  var aspect = CANVAS.width/CANVAS.height;
+  var aspect = CANVAS.width/CANVAS.height*9/10;
   
   var GL;
   try {
@@ -267,8 +267,9 @@ gl_FragColor = vec4(vColor, 1.);\n\
   var f_far = 20;
   var f_width = 6;
   
-  var eye_off = 1;
+  var eye_off = 0.5;
   var f_scr = 10;
+  var cross = false;
   
   var f_assym = eye_off*f_near/f_scr;
   
@@ -346,10 +347,11 @@ gl_FragColor = vec4(vColor, 1.);\n\
     var movemat = rmat([0,0,0],[0,0,1],Math.cos(phi),Math.sin(phi));
     
     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-    GL.viewport(0.0, 0.0, CANVAS.width/2, CANVAS.height);
-    render(pvmatl, movemat);
-    GL.viewport(CANVAS.width/2, 0.0, CANVAS.width/2, CANVAS.height);
-    render(pvmatr, movemat);
+    
+    GL.viewport(0.0, 0.0, CANVAS.width*9/20, CANVAS.height);
+    render(cross?pvmatr:pvmatl, movemat);
+    GL.viewport(CANVAS.width*11/20, 0.0, CANVAS.width*9/20, CANVAS.height);
+    render(cross?pvmatl:pvmatr, movemat);
     GL.flush();
     
     window.requestAnimationFrame(animate);
